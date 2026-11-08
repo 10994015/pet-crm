@@ -47,6 +47,8 @@ class BookingWizard extends Component
 
     public string $notes = '';
 
+    public bool $privacyAccepted = false;
+
     /** Left empty by people; bots fill every field. */
     public string $website = '';
 
@@ -132,6 +134,12 @@ class BookingWizard extends Component
         $member = Auth::guard('member')->user();
 
         return $member?->isMember() ? $member : null;
+    }
+
+    /** Guests agree every time; a member only until it's on record. */
+    public function needsPrivacyConsent(): bool
+    {
+        return $this->member()?->privacy_accepted_at === null;
     }
 
     /** @return Collection<int, Pet> */
@@ -263,7 +271,8 @@ class BookingWizard extends Component
             'species' => ['required', Rule::in(['dog', 'cat'])],
             'breed' => ['nullable', 'string', 'max:30'],
             'notes' => ['nullable', 'string', 'max:300'],
-        ], [], [
+            'privacyAccepted' => $this->needsPrivacyConsent() ? ['accepted'] : [],
+        ], ['privacyAccepted.accepted' => '請先閱讀並勾選同意隱私權聲明'], [
             'phone' => '手機號碼',
             'name' => '飼主姓名',
             'petName' => '毛孩名字',
@@ -297,6 +306,7 @@ class BookingWizard extends Component
                 'addon_ids' => $this->addonIds,
                 'starts_at' => "{$this->date} {$this->time}",
                 'notes' => $this->notes,
+                'privacy_accepted' => $this->privacyAccepted,
             ]);
         } catch (DomainException $exception) {
             $this->addError('form', $exception->getMessage());

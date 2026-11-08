@@ -62,8 +62,10 @@ class MemberController extends Controller
             'phone' => ['required', 'string', 'max:20'],
             'code' => ['required', 'string', 'max:12'],
             'password' => ['required', 'string', 'confirmed', Password::min(6)->letters()->numbers()],
+            'privacy' => ['accepted'],
         ], [
             'password.confirmed' => '兩次輸入的密碼不一樣',
+            'privacy.accepted' => '請先閱讀並勾選同意隱私權聲明',
         ], ['phone' => '手機號碼', 'code' => '開通碼', 'password' => '密碼']);
 
         $customer = Customer::firstWhere('phone', Customer::normalizePhone($data['phone']));
@@ -75,6 +77,7 @@ class MemberController extends Controller
 
         $isNew = ! $customer->isMember();
         $customer->activate($data['password']);
+        $customer->acceptPrivacy();
 
         Auth::guard('member')->login($customer);
         $request->session()->regenerate();

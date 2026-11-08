@@ -123,7 +123,7 @@
                         @endif
                     </ul>
                 </div>
-                <p class="foot-note">© {{ now()->year }} {{ config('app.name') }} · <a href="{{ url('/admin') }}">店家登入</a></p>
+                <p class="foot-note">© {{ now()->year }} {{ config('app.name') }} · <a href="{{ route('front.privacy') }}">隱私權聲明</a> · <a href="{{ url('/admin') }}">店家登入</a></p>
             </footer>
         </div>
     </div>

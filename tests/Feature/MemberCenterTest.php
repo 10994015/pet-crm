@@ -69,18 +69,18 @@ class MemberCenterTest extends TestCase
     public function test_a_phone_alone_cannot_open_an_account(): void
     {
         $this->post('/member/activate', [
-            'phone' => '0912345678', 'code' => 'AAAAAA', 'password' => 'secret123', 'password_confirmation' => 'secret123',
+            'phone' => '0912345678', 'code' => 'AAAAAA', 'password' => 'secret123', 'password_confirmation' => 'secret123', 'privacy' => '1',
         ])->assertSessionHasErrors('code');
 
         $code = $this->customer->issueActivationCode();
 
         $this->post('/member/activate', [
-            'phone' => '0922000000', 'code' => $code, 'password' => 'secret123', 'password_confirmation' => 'secret123',
+            'phone' => '0922000000', 'code' => $code, 'password' => 'secret123', 'password_confirmation' => 'secret123', 'privacy' => '1',
         ])->assertSessionHasErrors('code');
 
         $this->travel(Customer::ACTIVATION_DAYS + 1)->days();
         $this->post('/member/activate', [
-            'phone' => '0912345678', 'code' => $code, 'password' => 'secret123', 'password_confirmation' => 'secret123',
+            'phone' => '0912345678', 'code' => $code, 'password' => 'secret123', 'password_confirmation' => 'secret123', 'privacy' => '1',
         ])->assertSessionHasErrors('code');
 
         $this->assertFalse($this->customer->refresh()->isMember());
@@ -92,21 +92,52 @@ class MemberCenterTest extends TestCase
         $code = $this->customer->issueActivationCode();
 
         $this->post('/member/activate', [
-            'phone' => '0912-345-678', 'code' => strtolower($code), 'password' => 'secret123', 'password_confirmation' => 'secret123',
+            'phone' => '0912-345-678', 'code' => strtolower($code), 'password' => 'secret123', 'password_confirmation' => 'secret123', 'privacy' => '1',
         ])->assertRedirect('/member');
 
         $this->assertAuthenticatedAs($this->customer->refresh(), 'member');
         $this->assertTrue($this->customer->isMember());
         $this->assertNotNull($this->customer->member_since);
+        $this->assertNotNull($this->customer->privacy_accepted_at);
 
         auth('member')->logout();
         $this->post('/member/activate', [
-            'phone' => '0912345678', 'code' => $code, 'password' => 'other1234', 'password_confirmation' => 'other1234',
+            'phone' => '0912345678', 'code' => $code, 'password' => 'other1234', 'password_confirmation' => 'other1234', 'privacy' => '1',
         ])->assertSessionHasErrors('code');
 
         $this->post('/member/login', ['phone' => '0912 345 678', 'password' => 'wrong999'])->assertSessionHasErrors('phone');
         $this->post('/member/login', ['phone' => '0912 345 678', 'password' => 'secret123'])->assertRedirect('/member');
         $this->assertAuthenticated('member');
+    }
+
+    public function test_opening_an_account_needs_agreeing_to_the_privacy_notice(): void
+    {
+        $code = $this->customer->issueActivationCode();
+
+        $this->post('/member/activate', [
+            'phone' => '0912345678', 'code' => $code, 'password' => 'secret123', 'password_confirmation' => 'secret123',
+        ])->assertSessionHasErrors('privacy');
+
+        $this->assertFalse($this->customer->refresh()->isMember());
+        $this->assertNull($this->customer->privacy_accepted_at);
+    }
+
+    public function test_a_member_who_already_agreed_is_not_asked_again_when_booking(): void
+    {
+        $member = $this->member();
+        $member->acceptPrivacy();
+        $this->actingAs($member, 'member');
+
+        Livewire::test(BookingWizard::class)
+            ->call('chooseService', $this->bath->id)
+            ->call('next')
+            ->call('chooseDate', '2026-11-11')
+            ->call('chooseTime', '14:00')
+            ->call('next')
+            ->assertDontSee('隱私權聲明')
+            ->call('submit')
+            ->assertHasNoErrors()
+            ->assertSet('step', 4);
     }
 
     public function test_signing_in_to_the_website_is_not_signing_in_to_the_shop(): void
@@ -191,6 +222,7 @@ class MemberCenterTest extends TestCase
             ->assertSet('step', 3)
             ->assertSee('以會員')
             ->set('phone', '0999999999')
+            ->set('privacyAccepted', true)
             ->call('submit')
             ->assertHasNoErrors()
             ->assertSet('step', 4);

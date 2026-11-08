@@ -53,7 +53,9 @@ return [
             'busy_timeout' => null,
             'journal_mode' => null,
             'synchronous' => null,
-            'transaction_mode' => 'DEFERRED',
+            // Take the write lock up front. A DEFERRED transaction that reads and then writes
+            // fails at once with "database is locked" if anyone else wrote in between.
+            'transaction_mode' => 'IMMEDIATE',
         ],
 
         'mysql' => [

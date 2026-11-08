@@ -18,6 +18,8 @@ use DomainException;
 use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Sleep;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -195,6 +197,10 @@ class OnlineBookingTest extends TestCase
             ->set('name', '王小美')
             ->set('petName', '豆豆')
             ->call('submit')
+            ->assertHasErrors('privacyAccepted')
+            ->assertSet('step', 3)
+            ->set('privacyAccepted', true)
+            ->call('submit')
             ->assertHasNoErrors()
             ->assertSet('step', 4)
             ->assertSee('預約送出囉');
@@ -202,13 +208,49 @@ class OnlineBookingTest extends TestCase
         $appointment = Appointment::sole();
         $this->assertSame('2026-11-11 14:00', $appointment->starts_at->format('Y-m-d H:i'));
         $this->assertSame(PetSize::Large, $appointment->pet->size);
+        $this->assertEquals(now(), $appointment->pet->customer->privacy_accepted_at, 'the agreement is kept on record');
+    }
+
+    public function test_a_booking_someone_else_is_holding_up_is_refused_politely(): void
+    {
+        Sleep::fake(syncWithCarbon: true);
+        $inProgress = Cache::lock('online-booking', 60);
+        $this->assertTrue($inProgress->get());
+
+        try {
+            $this->book();
+            $this->fail('booked while another booking was still being written');
+        } catch (DomainException $exception) {
+            $this->assertStringContainsString('再按一次', $exception->getMessage());
+        }
+
+        $this->assertSame(0, Appointment::count());
+
+        $inProgress->release();
+        $this->book();
+        $this->assertSame(1, Appointment::count());
+    }
+
+    public function test_a_refused_booking_does_not_block_the_next_one(): void
+    {
+        $this->book();
+
+        try {
+            $this->book(['phone' => '0922000000']);
+            $this->fail('the slot was already taken');
+        } catch (DomainException) {
+            // Taken, as expected. The lock has to be free again regardless.
+        }
+
+        $this->book(['phone' => '0922000000', 'starts_at' => '2026-11-11 14:00']);
+        $this->assertSame(2, Appointment::count());
     }
 
     public function test_the_wizard_ignores_bots_filling_the_hidden_field(): void
     {
         Livewire::test(BookingWizard::class)
             ->set(['serviceId' => $this->bath->id, 'date' => '2026-11-11', 'time' => '14:00', 'step' => 3])
-            ->set(['phone' => '0912345678', 'name' => 'bot', 'petName' => 'bot', 'website' => 'http://spam'])
+            ->set(['phone' => '0912345678', 'name' => 'bot', 'petName' => 'bot', 'website' => 'http://spam', 'privacyAccepted' => true])
             ->call('submit');
 
         $this->assertSame(0, Appointment::count());

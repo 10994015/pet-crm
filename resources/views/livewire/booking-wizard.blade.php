@@ -207,6 +207,15 @@
                             <textarea class="input" wire:model="notes" rows="3" placeholder="例如：會怕吹風機、想剪短一點"></textarea>
                             @error('notes') <small class="field-error">{{ $message }}</small> @enderror
                         </label>
+                        @if ($this->needsPrivacyConsent())
+                            <div class="field-wide">
+                                <label class="consent">
+                                    <input type="checkbox" wire:model="privacyAccepted">
+                                    <span>我已閱讀並同意<a href="{{ route('front.privacy') }}" target="_blank" rel="noopener">隱私權聲明</a>，了解店家會使用以上資料處理這次預約。</span>
+                                </label>
+                                @error('privacyAccepted') <small class="field-error">{{ $message }}</small> @enderror
+                            </div>
+                        @endif
                         <label class="hp" aria-hidden="true">網站 <input type="text" wire:model="website" tabindex="-1" autocomplete="off"></label>
                     </form>
                 @endif

@@ -30,7 +30,14 @@ class Customer extends Model implements AuthenticatableContract
             'password' => 'hashed',
             'member_since' => 'datetime',
             'activation_expires_at' => 'datetime',
+            'privacy_accepted_at' => 'datetime',
         ];
+    }
+
+    /** Keeps when they last agreed to the privacy notice, as proof of their consent. */
+    public function acceptPrivacy(): void
+    {
+        $this->forceFill(['privacy_accepted_at' => now()])->save();
     }
 
     public function isMember(): bool

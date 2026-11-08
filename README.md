@@ -1,58 +1,90 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# BabyGo 寵物美容 CRM 與預約網站
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+給寵物美容店用的系統：店家在後台管理客人、毛孩、預約和營收，飼主在網站上線上預約、查詢紀錄。
 
-## About Laravel
+## 功能
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+**店家後台（`/admin`）**
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- 客戶與毛孩資料、美容前後照片
+- 預約管理、每日行程表、美容師時段衝突檢查
+- 包月方案、商品與訂單
+- 營收報表、回訪提醒、Excel 匯出
+- 業主與員工兩種權限
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**公開網站**
 
-## Learning Laravel
+- 線上預約：選服務、挑時段、填資料，店家確認後完成
+- 用手機號碼加預約代碼查詢預約
+- 會員中心：毛孩、消費紀錄、包月方案、取消預約
+- 隱私權聲明與同意紀錄
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 技術
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Laravel 13、Filament 5、Livewire。需要 **PHP 8.4 以上**（`composer.lock` 裡的套件有此要求）和 Composer 2。預設使用 SQLite，也支援 MySQL／MariaDB。
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+不需要 Node.js：樣式直接放在 `public/css/`，沒有前端建置步驟。
 
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## 本機開發
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --force      # SQLite 資料庫檔案會自動建立
+php artisan db:seed              # 建立業主帳號與入門價目表，密碼會顯示在畫面上
+php artisan storage:link
+php artisan serve --port=8020
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+- 網站：<http://127.0.0.1:8020>
+- 後台：<http://127.0.0.1:8020/admin>
 
-## Contributing
+業主帳號預設是 `owner`。沒有設定 `OWNER_PASSWORD` 時，`db:seed` 會產生隨機密碼，只顯示這一次，請先記下來。
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 示範資料
 
-## Code of Conduct
+```bash
+php artisan db:seed --class=DemoSeeder       # 少量示範客戶與預約
+php artisan db:seed --class=FakeDataSeeder   # 100 個家庭與一整年的紀錄，適合看報表
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+這些都是假資料，不要在正式環境執行。
 
-## Security Vulnerabilities
+## 從舊系統匯入資料
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+把舊系統（bibidog）的客戶、毛孩、服務、訂單和銷售紀錄複製過來。先在 `.env` 填好 `BIBIDOG_DB_*`：
 
-## License
+```bash
+php artisan bibidog:import --dry-run   # 試跑：顯示筆數與金額核對，不會寫入
+php artisan bibidog:import             # 金額核對相符後才正式匯入
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+如果系統裡已經有非匯入的客戶，指令會停下來，避免新舊資料混在一起。確定要合併才加上 `--allow-existing`。
+
+## 測試
+
+```bash
+php artisan test
+```
+
+測試使用記憶體資料庫，不會動到開發資料。推送後 GitHub Actions 也會自動跑一次（見 `.github/workflows/ci.yml`）。
+
+## 部署
+
+見 [docs/DEPLOY.md](docs/DEPLOY.md)，正式環境的設定範本是 [.env.production.example](.env.production.example)。
+
+系統目前**沒有自動備份**，也不會自動寄送通知，上線前請先看過部署指南的備份段落。
+
+## 專案結構
+
+| 位置 | 內容 |
+| --- | --- |
+| `app/Filament/` | 後台的頁面、資源與小工具 |
+| `app/Livewire/BookingWizard.php` | 線上預約的三個步驟 |
+| `app/Services/OnlineBooking.php` | 預約規則：可預約時段、容量、防止超收 |
+| `app/Services/BibidogImporter.php` | 舊系統資料匯入 |
+| `app/Http/Controllers/` | 公開網站與會員中心 |
+| `resources/views/front/` | 公開網站的畫面 |
+| `resources/views/errors/` | 錯誤頁，刻意不依賴資料庫 |
+| `public/css/` | `front.css` 給網站，`bibidog.css` 給後台 |

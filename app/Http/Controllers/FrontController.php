@@ -24,6 +24,11 @@ class FrontController extends Controller
         return view('front.booking');
     }
 
+    public function privacy(): View
+    {
+        return view('front.privacy', ['shop' => Setting::texts()]);
+    }
+
     public function myBooking(): View
     {
         return view('front.my-booking', ['appointment' => null, 'upcoming' => collect()]);

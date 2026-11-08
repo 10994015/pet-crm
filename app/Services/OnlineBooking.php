@@ -13,9 +13,12 @@ use App\Models\Service;
 use App\Models\Setting;
 use App\Models\User;
 use Carbon\CarbonInterface;
+use Closure;
 use DomainException;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -27,6 +30,11 @@ class OnlineBooking
 {
     /** Upcoming online bookings one phone number may hold, so a prank can't fill the week. */
     public const MAX_OPEN_PER_PHONE = 3;
+
+    /** Long enough for one booking to finish; a crashed request lets go after this. */
+    private const LOCK_HOLD_SECONDS = 15;
+
+    private const LOCK_WAIT_SECONDS = 5;
 
     public static function enabled(): bool
     {
@@ -139,7 +147,8 @@ class OnlineBooking
      * pet by name, so a regular's history stays together; nothing about them is shown back.
      *
      * @param  array{phone: string, name: string, pet_name: string, species: string, breed?: ?string,
-     *     size: string, service_id: int, addon_ids?: list<int>, starts_at: string, notes?: ?string}  $data
+     *     size: string, service_id: int, addon_ids?: list<int>, starts_at: string, notes?: ?string,
+     *     privacy_accepted?: bool}  $data
      */
     public static function book(array $data): Appointment
     {
@@ -153,7 +162,7 @@ class OnlineBooking
         $start = Carbon::parse($data['starts_at']);
         $phone = Customer::normalizePhone($data['phone']);
 
-        return DB::transaction(function () use ($data, $services, $start, $phone) {
+        return self::oneAtATime(fn () => DB::transaction(function () use ($data, $services, $start, $phone) {
             if (! self::isAvailable($start, self::duration($services))) {
                 throw new DomainException('這個時段剛好被約走了，請換一個時間。');
             }
@@ -165,6 +174,10 @@ class OnlineBooking
             }
 
             $customer ??= Customer::create(['name' => $data['name'], 'phone' => $phone]);
+
+            if ($data['privacy_accepted'] ?? false) {
+                $customer->acceptPrivacy();
+            }
 
             $pet = $customer->pets()->whereRaw('lower(name) = ?', [Str::lower(trim($data['pet_name']))])->first()
                 ?? $customer->pets()->create([
@@ -197,7 +210,21 @@ class OnlineBooking
             }
 
             return $appointment->refresh();
-        });
+        }));
+    }
+
+    /**
+     * Checking a slot and taking it have to happen as one step, or everyone who sends the
+     * form at the same moment sees it free. A transaction alone doesn't do this: MySQL lets
+     * them all through and SQLite fails them with "database is locked".
+     */
+    private static function oneAtATime(Closure $book): Appointment
+    {
+        try {
+            return Cache::lock('online-booking', self::LOCK_HOLD_SECONDS)->block(self::LOCK_WAIT_SECONDS, $book);
+        } catch (LockTimeoutException) {
+            throw new DomainException('現在預約的人比較多，請再按一次「確認預約」。');
+        }
     }
 
     /** The booking behind a phone and code, or null when they don't belong together. */

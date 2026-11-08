@@ -31,6 +31,13 @@
                     <span>再輸入一次密碼</span>
                     <input class="input" type="password" name="password_confirmation" autocomplete="new-password" required>
                 </label>
+                <div>
+                    <label class="consent">
+                        <input type="checkbox" name="privacy" required>
+                        <span>我已閱讀並同意<a href="{{ route('front.privacy') }}" target="_blank" rel="noopener">隱私權聲明</a>。</span>
+                    </label>
+                    @error('privacy') <small class="field-error">{{ $message }}</small> @enderror
+                </div>
                 <button class="btn btn-block" type="submit">完成開通 <span aria-hidden="true">›</span></button>
             </form>
 
