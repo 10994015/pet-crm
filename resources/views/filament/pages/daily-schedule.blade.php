@@ -30,7 +30,7 @@
     </div>
 
     @if ($closure = $this->shopClosure())
-        <div class="schedule-closed" role="status">今天全店店休{{ $closure->reason ? "（{$closure->reason}）" : '' }}，線上預約已關閉。</div>
+        <div class="schedule-closed" role="status">這天全店店休{{ $closure->reason ? "（{$closure->reason}）" : '' }}，線上預約已關閉。</div>
     @endif
 
     <div class="schedule-grid">

@@ -195,7 +195,7 @@ class TimeOffTest extends TestCase
         TimeOff::create(['starts_on' => self::DAY, 'ends_on' => self::DAY, 'reason' => '過年']);
 
         Livewire::withQueryParams(['date' => self::DAY])->test(DailySchedule::class)
-            ->assertSee('今天全店店休（過年）');
+            ->assertSee('這天全店店休（過年）');
 
         Livewire::withQueryParams(['date' => '2026-11-12'])->test(DailySchedule::class)
             ->assertDontSee('請假')
