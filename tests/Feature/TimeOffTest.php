@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\AppointmentStatus;
 use App\Enums\ServiceType;
 use App\Enums\UserRole;
 use App\Filament\Pages\DailySchedule;
@@ -141,7 +142,7 @@ class TimeOffTest extends TestCase
 
         $closure = TimeOff::sole();
         $this->assertNull($closure->user_id);
-        $this->assertSame(1, Appointment::whereIn('status', \App\Enums\AppointmentStatus::active())->count(), 'existing visits are not cancelled');
+        $this->assertSame(1, Appointment::whereIn('status', AppointmentStatus::active())->count(), 'existing visits are not cancelled');
     }
 
     public function test_the_end_date_cannot_come_before_the_start(): void

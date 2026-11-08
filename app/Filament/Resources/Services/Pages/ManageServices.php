@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Services\Pages;
 
-use App\Filament\Resources\Services\ServiceResource;
 use App\Filament\Resources\ServiceCategories\ServiceCategoryResource;
+use App\Filament\Resources\Services\ServiceResource;
 use App\Models\ServiceCategory;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
@@ -64,7 +65,7 @@ class Backup
         return $old->count();
     }
 
-    /** @return \Illuminate\Support\Collection<int, SplFileInfo> newest first */
+    /** @return Collection<int, SplFileInfo> newest first */
     private function all()
     {
         if (! File::isDirectory(config('backup.path'))) {

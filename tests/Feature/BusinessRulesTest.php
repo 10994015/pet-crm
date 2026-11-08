@@ -19,10 +19,10 @@ use App\Filament\Resources\Packages\Pages\ManagePackages;
 use App\Filament\Resources\ProductOrders\Pages\CreateProductOrder;
 use App\Filament\Resources\ProductOrders\Pages\ListProductOrders;
 use App\Filament\Widgets\PackagesNeedingAttention;
-use App\Models\PackageAdjustment;
 use App\Models\Appointment;
 use App\Models\Customer;
 use App\Models\Package;
+use App\Models\PackageAdjustment;
 use App\Models\Pet;
 use App\Models\Product;
 use App\Models\ProductOrder;
@@ -353,7 +353,7 @@ class BusinessRulesTest extends TestCase
         $package = $this->sellPackage();
         $this->actingAs($this->staff);
 
-        Livewire::test(CreateAppointment::class, )
+        Livewire::test(CreateAppointment::class)
             ->fillForm([
                 'pet_id' => $this->pet->getKey(),
                 'starts_at' => today()->addDay()->setTime(10, 0)->toDateTimeString(),

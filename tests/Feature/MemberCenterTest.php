@@ -10,6 +10,7 @@ use App\Filament\Resources\Customers\Pages\EditCustomer;
 use App\Livewire\BookingWizard;
 use App\Models\Appointment;
 use App\Models\Customer;
+use App\Models\Package;
 use App\Models\Pet;
 use App\Models\Service;
 use App\Models\Setting;
@@ -172,7 +173,7 @@ class MemberCenterTest extends TestCase
     public function test_package_visits_left_are_shown(): void
     {
         $member = $this->member();
-        $package = \App\Models\Package::sell(['pet_ids' => [$this->pet->id], 'service_id' => $this->bath->id]);
+        $package = Package::sell(['pet_ids' => [$this->pet->id], 'service_id' => $this->bath->id]);
         $this->visit('2026-11-05 10:00', AppointmentStatus::Completed)->update(['package_id' => $package->id]);
 
         $this->actingAs($member, 'member')->get('/member')

@@ -6,10 +6,9 @@ use App\Enums\ServiceType;
 use App\Filament\Resources\Services\Pages\ManageServices;
 use App\Filament\Support\ExcelExport;
 use App\Filament\Support\PhotoUpload;
-use App\Models\ServiceCategory;
 use App\Models\Service;
+use App\Models\ServiceCategory;
 use BackedEnum;
-use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
@@ -97,7 +96,7 @@ class ServiceResource extends Resource
                 IconColumn::make('is_bookable_online')->label('線上預約')->boolean(),
             ])
             ->headerActions([
-                ExcelExport::action('美容服務', fn (\App\Models\Service $service) => [
+                ExcelExport::action('美容服務', fn (Service $service) => [
                     '名稱' => $service->name,
                     '分類' => $service->category?->name,
                     '類型' => $service->type->getLabel(),

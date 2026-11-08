@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Appointments;
 
 use App\Enums\AppointmentStatus;
 use App\Enums\PaymentMethod;
+use App\Enums\ServiceType;
 use App\Filament\Resources\Appointments\Pages\CreateAppointment;
 use App\Filament\Resources\Appointments\Pages\EditAppointment;
 use App\Filament\Resources\Appointments\Pages\ListAppointments;
@@ -11,7 +12,6 @@ use App\Filament\Resources\Packages\PackageResource;
 use App\Filament\Resources\Pets\PetResource;
 use App\Filament\Support\ExcelExport;
 use App\Filament\Support\PhotoUpload;
-use App\Enums\ServiceType;
 use App\Models\Appointment;
 use App\Models\Package;
 use App\Models\Pet;

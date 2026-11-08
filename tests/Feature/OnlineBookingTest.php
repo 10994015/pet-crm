@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\PetSize;
 use App\Enums\ServiceType;
 use App\Enums\UserRole;
+use App\Filament\Pages\ShopSettings;
 use App\Filament\Pages\VisitReminders;
 use App\Filament\Resources\Appointments\Pages\ListAppointments;
 use App\Livewire\BookingWizard;
@@ -298,7 +299,7 @@ class OnlineBookingTest extends TestCase
     {
         $this->actingAs($this->owner);
 
-        Livewire::test(\App\Filament\Pages\ShopSettings::class)
+        Livewire::test(ShopSettings::class)
             ->fillForm([
                 'booking_open_hour' => 9.5,
                 'booking_close_hour' => 18,

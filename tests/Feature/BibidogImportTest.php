@@ -44,49 +44,103 @@ class BibidogImportTest extends TestCase
         $schema = Schema::connection('bibidog');
 
         $schema->create('users', function (Blueprint $t) {
-            $t->id(); $t->string('name'); $t->string('username')->nullable(); $t->string('email'); $t->string('password');
-            $t->boolean('is_admin')->default(false); $t->timestamps();
+            $t->id();
+            $t->string('name');
+            $t->string('username')->nullable();
+            $t->string('email');
+            $t->string('password');
+            $t->boolean('is_admin')->default(false);
+            $t->timestamps();
         });
         $schema->create('customers', function (Blueprint $t) {
-            $t->id(); $t->string('name'); $t->string('phone')->nullable(); $t->string('email')->nullable();
-            $t->string('address')->nullable(); $t->text('remark')->nullable(); $t->timestamps();
+            $t->id();
+            $t->string('name');
+            $t->string('phone')->nullable();
+            $t->string('email')->nullable();
+            $t->string('address')->nullable();
+            $t->text('remark')->nullable();
+            $t->timestamps();
         });
         $schema->create('pet_types', function (Blueprint $t) {
-            $t->id(); $t->string('name');
+            $t->id();
+            $t->string('name');
         });
         $schema->create('pets', function (Blueprint $t) {
-            $t->id(); $t->unsignedBigInteger('customer_id')->nullable(); $t->unsignedBigInteger('pet_type_id')->nullable();
-            $t->string('pet_breed')->nullable(); $t->string('size')->nullable(); $t->string('name')->nullable();
-            $t->string('gender')->nullable(); $t->date('birth_date')->nullable(); $t->string('color')->nullable();
-            $t->float('weight')->nullable(); $t->string('chip_number')->nullable(); $t->boolean('is_neutered')->nullable();
-            $t->text('medical_history')->nullable(); $t->text('notes')->nullable(); $t->timestamps();
+            $t->id();
+            $t->unsignedBigInteger('customer_id')->nullable();
+            $t->unsignedBigInteger('pet_type_id')->nullable();
+            $t->string('pet_breed')->nullable();
+            $t->string('size')->nullable();
+            $t->string('name')->nullable();
+            $t->string('gender')->nullable();
+            $t->date('birth_date')->nullable();
+            $t->string('color')->nullable();
+            $t->float('weight')->nullable();
+            $t->string('chip_number')->nullable();
+            $t->boolean('is_neutered')->nullable();
+            $t->text('medical_history')->nullable();
+            $t->text('notes')->nullable();
+            $t->timestamps();
         });
         $schema->create('service_categories', function (Blueprint $t) {
-            $t->id(); $t->string('name'); $t->unsignedInteger('sort_order')->default(0);
+            $t->id();
+            $t->string('name');
+            $t->unsignedInteger('sort_order')->default(0);
         });
         $schema->create('service_items', function (Blueprint $t) {
-            $t->id(); $t->unsignedBigInteger('service_category_id'); $t->string('name'); $t->integer('price')->nullable();
-            $t->string('config')->default('standard'); $t->unsignedInteger('sort_order')->default(0);
+            $t->id();
+            $t->unsignedBigInteger('service_category_id');
+            $t->string('name');
+            $t->integer('price')->nullable();
+            $t->string('config')->default('standard');
+            $t->unsignedInteger('sort_order')->default(0);
         });
         $schema->create('orders', function (Blueprint $t) {
-            $t->id(); $t->unsignedBigInteger('pet_id'); $t->string('order_type'); $t->date('start_date'); $t->date('end_date');
-            $t->integer('total_amount'); $t->float('discount')->nullable(); $t->integer('remaining_visits');
-            $t->unsignedInteger('service_count')->default(0); $t->string('status')->nullable(); $t->text('remarks')->nullable();
-            $t->unsignedBigInteger('service_item_id')->nullable(); $t->timestamps();
+            $t->id();
+            $t->unsignedBigInteger('pet_id');
+            $t->string('order_type');
+            $t->date('start_date');
+            $t->date('end_date');
+            $t->integer('total_amount');
+            $t->float('discount')->nullable();
+            $t->integer('remaining_visits');
+            $t->unsignedInteger('service_count')->default(0);
+            $t->string('status')->nullable();
+            $t->text('remarks')->nullable();
+            $t->unsignedBigInteger('service_item_id')->nullable();
+            $t->timestamps();
         });
         $schema->create('order_items', function (Blueprint $t) {
-            $t->id(); $t->unsignedBigInteger('order_id'); $t->integer('price'); $t->date('service_date'); $t->text('remarks')->nullable();
+            $t->id();
+            $t->unsignedBigInteger('order_id');
+            $t->integer('price');
+            $t->date('service_date');
+            $t->text('remarks')->nullable();
         });
         $schema->create('order_item_service_items', function (Blueprint $t) {
-            $t->id(); $t->unsignedBigInteger('order_item_id'); $t->unsignedBigInteger('service_item_id');
+            $t->id();
+            $t->unsignedBigInteger('order_item_id');
+            $t->unsignedBigInteger('service_item_id');
         });
         $schema->create('product_orders', function (Blueprint $t) {
-            $t->id(); $t->string('order_number'); $t->unsignedBigInteger('customer_id')->nullable(); $t->date('order_date')->nullable();
-            $t->integer('total_price'); $t->string('payment_status')->default('paid'); $t->string('payment_method')->nullable();
-            $t->text('remarks')->nullable(); $t->timestamp('paid_at')->nullable(); $t->timestamps();
+            $t->id();
+            $t->string('order_number');
+            $t->unsignedBigInteger('customer_id')->nullable();
+            $t->date('order_date')->nullable();
+            $t->integer('total_price');
+            $t->string('payment_status')->default('paid');
+            $t->string('payment_method')->nullable();
+            $t->text('remarks')->nullable();
+            $t->timestamp('paid_at')->nullable();
+            $t->timestamps();
         });
         $schema->create('product_order_items', function (Blueprint $t) {
-            $t->id(); $t->unsignedBigInteger('order_id'); $t->string('product_name'); $t->integer('price'); $t->integer('quantity'); $t->text('notes')->nullable();
+            $t->id();
+            $t->unsignedBigInteger('order_id');
+            $t->string('product_name');
+            $t->integer('price');
+            $t->integer('quantity');
+            $t->text('notes')->nullable();
         });
     }
 
