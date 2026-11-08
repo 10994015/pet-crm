@@ -11,6 +11,7 @@ use App\Models\Customer;
 use App\Models\Pet;
 use App\Models\Service;
 use App\Models\Setting;
+use App\Models\TimeOff;
 use App\Models\User;
 use Carbon\CarbonInterface;
 use Closure;
@@ -68,15 +69,16 @@ class OnlineBooking
         return (int) $services->sum('duration_minutes') ?: Appointment::DEFAULT_DURATION_MINUTES;
     }
 
-    /** Days a customer can pick, skipping the weekly day off. @return list<Carbon> */
+    /** Days a customer can pick, skipping the weekly day off and any shop closures. @return list<Carbon> */
     public static function days(): array
     {
         $closed = Setting::closedWeekdays();
         $last = today()->addDays((int) Setting::value('booking_days_ahead'));
+        $shopClosures = TimeOff::forShop()->whereDate('ends_on', '>=', today())->whereDate('starts_on', '<=', $last)->get();
         $days = [];
 
         for ($day = today(); $day->lte($last); $day = $day->addDay()) {
-            if (! in_array($day->dayOfWeek, $closed, true)) {
+            if (! in_array($day->dayOfWeek, $closed, true) && ! $shopClosures->contains(fn (TimeOff $off) => $day->betweenIncluded($off->starts_on, $off->ends_on))) {
                 $days[] = $day->copy();
             }
         }
@@ -100,7 +102,7 @@ class OnlineBooking
         $close = Carbon::parse($day)->startOfDay()->addMinutes((int) round($settings['booking_close_hour'] * 60));
         $earliest = now()->addHours((int) $settings['booking_lead_hours']);
         $busy = self::busyTimes($day);
-        $capacity = self::capacity();
+        $capacity = self::capacity($day);
         $slots = [];
 
         for (
@@ -126,10 +128,23 @@ class OnlineBooking
             ->contains(fn (array $slot) => $slot['time'] === $start->format('H:i') && $slot['available']);
     }
 
-    /** How many dogs can be groomed at the same time: one per groomer on the team. */
-    public static function capacity(): int
+    /**
+     * How many dogs can be groomed at the same time: one per groomer working that day.
+     * A shop with nobody marked as a groomer still takes one; a day everyone is away takes none.
+     */
+    public static function capacity(?CarbonInterface $day = null): int
     {
-        return max(1, User::activeGroomers()->count());
+        $groomers = User::activeGroomers()->pluck('id');
+
+        if ($groomers->isEmpty()) {
+            return 1;
+        }
+
+        $away = $day
+            ? TimeOff::query()->on($day)->whereIn('user_id', $groomers)->distinct()->count('user_id')
+            : 0;
+
+        return $groomers->count() - $away;
     }
 
     /** @return Collection<int, array{0: Carbon, 1: Carbon}> */

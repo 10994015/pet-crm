@@ -16,6 +16,7 @@ use App\Models\Appointment;
 use App\Models\Package;
 use App\Models\Pet;
 use App\Models\Service;
+use App\Models\TimeOff;
 use App\Models\User;
 use BackedEnum;
 use Closure;
@@ -287,6 +288,12 @@ class AppointmentResource extends Resource
             $minutes = (int) collect($get('items'))->sum(fn ($item) => (int) ($item['duration_minutes'] ?? 0));
             $start = Carbon::parse($value);
             $end = $start->copy()->addMinutes($minutes ?: Appointment::DEFAULT_DURATION_MINUTES);
+
+            if (TimeOff::groomerAwayOn((int) $get('groomer_id'), $start)) {
+                $fail('這位美容師當天請假。');
+
+                return;
+            }
 
             if (Appointment::hasConflict((int) $get('groomer_id'), $start, $end, $record?->getKey())) {
                 $fail('這位美容師在這段時間已經有其他預約。');

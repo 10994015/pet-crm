@@ -107,7 +107,7 @@ class ShopSettings extends Page
                             }),
                     ]),
                 Section::make('線上預約')
-                    ->description(new HtmlString('客人在 <a href="'.route('front.home').'" target="_blank" class="underline">預約網站</a> 預約，送出後會出現在預約清單，標示「線上・待確認」。同一時段可接的數量等於美容師人數。'))
+                    ->description(new HtmlString('客人在 <a href="'.route('front.home').'" target="_blank" class="underline">預約網站</a> 預約，送出後會出現在預約清單，標示「線上・待確認」。同一時段可接的數量等於當天上班的美容師人數。'))
                     ->columns(3)
                     ->schema([
                         Toggle::make('booking_enabled')->label('開放線上預約')->columnSpanFull(),
@@ -135,13 +135,14 @@ class ShopSettings extends Page
                             ->helperText('會員可在網站上取消預約，最晚到預約前幾小時；0 表示不開放')
                             ->numeric()->integer()->minValue(0)->maxValue(168)->suffix('小時前')->required(),
                         CheckboxList::make('booking_closed_days')
-                            ->label('公休日')
+                            ->label('每週公休日')
+                            ->helperText('過年或臨時休假請到「店休與請假」設定。')
                             ->options(['1' => '週一', '2' => '週二', '3' => '週三', '4' => '週四', '5' => '週五', '6' => '週六', '0' => '週日'])
                             ->columns(7)
                             ->columnSpanFull(),
                         Textarea::make('booking_notice')
                             ->label('預約頁公告')
-                            ->placeholder('例如：12/24–12/26 店休，請見諒')
+                            ->placeholder('例如：夏季洗澡預約較滿，建議提早預約')
                             ->maxLength(250)
                             ->rows(2)
                             ->columnSpanFull(),

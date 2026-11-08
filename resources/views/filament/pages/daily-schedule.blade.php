@@ -17,6 +17,7 @@
         .schedule-line { color: var(--gray-500); font-size: .875rem; margin-top: .125rem; }
         .schedule-warning { color: var(--danger-600); font-size: .875rem; font-weight: 600; margin-top: .25rem; }
         .dark .schedule-warning { color: var(--danger-400); }
+        .schedule-closed { margin-top: 1rem; padding: .75rem 1rem; border-radius: .75rem; background: var(--warning-50); color: var(--warning-700); font-weight: 600; }
     </style>
 
     <div class="schedule-bar">
@@ -28,11 +29,15 @@
         <x-filament::button tag="a" :href="$this->createUrl()" icon="heroicon-m-plus">新增預約</x-filament::button>
     </div>
 
+    @if ($closure = $this->shopClosure())
+        <div class="schedule-closed" role="status">今天全店店休{{ $closure->reason ? "（{$closure->reason}）" : '' }}，線上預約已關閉。</div>
+    @endif
+
     <div class="schedule-grid">
         @foreach ($this->columns() as $column)
             <div class="schedule-column">
                 <div class="schedule-groomer">
-                    <span>{{ $column['name'] }}</span>
+                    <span>{{ $column['name'] }}@if ($column['away']) <x-filament::badge color="warning" style="display: inline-flex; margin-inline-start: .25rem;">請假</x-filament::badge>@endif</span>
                     <span class="schedule-count">{{ $column['appointments']->count() }} 筆</span>
                 </div>
 

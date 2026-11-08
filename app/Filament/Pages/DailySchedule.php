@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Enums\AppointmentStatus;
 use App\Filament\Resources\Appointments\AppointmentResource;
 use App\Models\Appointment;
+use App\Models\TimeOff;
 use App\Models\User;
 use BackedEnum;
 use Filament\Pages\Page;
@@ -71,16 +72,24 @@ class DailySchedule extends Page
             ->orderBy('name')
             ->get();
 
+        $away = TimeOff::query()->on($this->day())->whereNotNull('user_id')->pluck('user_id');
+
         $columns = $groomers->map(fn (User $groomer) => [
             'name' => $groomer->name,
+            'away' => $away->contains($groomer->getKey()),
             'appointments' => $appointments->get($groomer->getKey(), collect()),
         ]);
 
         if ($appointments->has('')) {
-            $columns->prepend(['name' => '尚未指定', 'appointments' => $appointments->get('')]);
+            $columns->prepend(['name' => '尚未指定', 'away' => false, 'appointments' => $appointments->get('')]);
         }
 
         return $columns->values();
+    }
+
+    public function shopClosure(): ?TimeOff
+    {
+        return TimeOff::forShop()->on($this->day())->first();
     }
 
     public function editUrl(Appointment $appointment): ?string
