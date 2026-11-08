@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\ActivityLog;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
@@ -26,6 +27,9 @@ class ResetStaffPassword extends Command
 
         $password = Str::password(14, symbols: false);
         $user->forceFill(['password' => $password, 'remember_token' => null])->save();
+
+        // Commands aren't logged automatically, and this one is worth knowing about.
+        ActivityLog::record('password_reset', 'User', $user->getKey(), $user->name, actor: '系統指令');
 
         $this->info("{$user->name}（{$user->username}）的新密碼：{$password}");
         $this->line('這組密碼只會顯示這一次，登入後請到個人資料更改。');

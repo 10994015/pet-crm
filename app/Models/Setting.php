@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RecordsActivity;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -9,6 +10,8 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['key', 'value'])]
 class Setting extends Model
 {
+    use RecordsActivity;
+
     public const DEFAULTS = [
         'package_discount' => 9,      // 折: 9 = 九折, 8.5 = 85 折, 10 = 不打折
         'package_visits' => 4,
@@ -22,6 +25,8 @@ class Setting extends Model
         'booking_days_ahead' => 30,
         'booking_lead_hours' => 3,     // how soon before the visit online booking closes
         'member_cancel_hours' => 24,   // members may cancel on the website up to this long before
+        'booking_max_no_shows' => 2,   // no-shows in a row before someone has to call; 0 = never
+        'booking_max_pending' => 20,   // unconfirmed bookings before new phones have to call; 0 = no limit
     ];
 
     /** Words rather than numbers, shown on the website. */

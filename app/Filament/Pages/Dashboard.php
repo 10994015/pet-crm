@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Widgets\LowStockProducts;
 use App\Filament\Widgets\PackagesNeedingAttention;
 use BackedEnum;
 use Filament\Pages\Dashboard as BaseDashboard;
@@ -27,7 +28,7 @@ class Dashboard extends BaseDashboard
 
     public function getWidgets(): array
     {
-        return array_values(array_diff(parent::getWidgets(), [PackagesNeedingAttention::class]));
+        return array_values(array_diff(parent::getWidgets(), [PackagesNeedingAttention::class, LowStockProducts::class]));
     }
 
     public function getColumns(): int|array

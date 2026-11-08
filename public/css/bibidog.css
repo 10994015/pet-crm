@@ -233,3 +233,6 @@ html.is-busy, html.is-busy button { cursor: progress; }
 .bibi-tile[data-busy] { position: relative; }
 .bibi-tile[data-busy]::after { content: ''; position: absolute; top: 8px; right: 8px; width: 12px; height: 12px; border: 2px solid var(--bibi-accent); border-right-color: transparent; border-radius: 50%; animation: busy-spin .6s linear infinite; }
 @keyframes busy-spin { to { transform: rotate(1turn); } }
+
+/* The menu can scroll on short screens; keep the scrollbar from glaring on the dark sidebar. */
+.fi-sidebar-nav { scrollbar-color: rgba(255, 255, 255, .25) transparent; scrollbar-width: thin; }

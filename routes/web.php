@@ -11,6 +11,8 @@ Route::controller(FrontController::class)->name('front.')->group(function () {
     Route::get('/', 'home')->name('home');
     Route::get('/booking', 'booking')->name('booking');
     Route::get('/privacy', 'privacy')->name('privacy');
+    Route::get('/sitemap.xml', 'sitemap')->name('sitemap');
+    Route::get('/robots.txt', 'robots')->name('robots');
     Route::get('/my-booking', 'myBooking')->name('my-booking');
     Route::post('/my-booking', 'findBooking')->middleware('throttle:10,1')->name('my-booking.find');
 });

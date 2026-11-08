@@ -7,6 +7,7 @@ use App\Enums\PetGender;
 use App\Enums\PetSize;
 use App\Enums\PetSpecies;
 use App\Enums\PetTemperament;
+use App\Models\Concerns\RecordsActivity;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -24,6 +25,8 @@ use Illuminate\Support\Carbon;
 ])]
 class Pet extends Model
 {
+    use RecordsActivity;
+
     /** Don't contact the same owner about a visit again within this many days. */
     public const CONTACT_COOLDOWN_DAYS = 14;
 

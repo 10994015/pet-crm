@@ -19,6 +19,7 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
@@ -77,7 +78,14 @@ class CustomerResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('基本資料')->columns(2)->schema(self::fields()),
+            Section::make('基本資料')->columns(2)->schema([
+                ...self::fields(),
+                Toggle::make('online_booking_blocked')
+                    ->label('封鎖線上預約')
+                    ->helperText('開啟後這支電話不能在網站預約，要改用電話聯絡。已有的預約不受影響。')
+                    ->visibleOn('edit')
+                    ->columnSpanFull(),
+            ]),
             Section::make('寵物')
                 ->description('可以一次建立多隻，之後也能在客戶頁補充更多資料。')
                 ->visibleOn('create')

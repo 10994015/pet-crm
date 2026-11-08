@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\Backup;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Livewire\Livewire;
 use PDO;
@@ -55,6 +56,10 @@ class BackupTest extends TestCase
 
     public function test_a_backup_can_actually_be_restored_with_data_and_photos(): void
     {
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            $this->markTestSkipped('Reads the backup back as a SQLite file.');
+        }
+
         Customer::create(['name' => '王小美', 'phone' => '0912345678']);
         File::put(storage_path('app/public/backup-test-photo.txt'), 'photo');
 

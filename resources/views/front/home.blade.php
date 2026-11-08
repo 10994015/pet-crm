@@ -2,6 +2,10 @@
 
 @section('title', '寵物美容線上預約')
 
+@push('head')
+    <script type="application/ld+json">{!! json_encode($structuredData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) !!}</script>
+@endpush
+
 @section('content')
     <div class="page">
         <div class="page-main">

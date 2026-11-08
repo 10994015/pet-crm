@@ -3,10 +3,12 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Resources\Appointments\AppointmentResource;
+use App\Filament\Widgets\LowStockProducts;
 use App\Filament\Widgets\PackagesNeedingAttention;
 use App\Models\Appointment;
 use App\Models\Package;
 use App\Models\Pet;
+use App\Models\Product;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Pages\Page;
@@ -37,7 +39,10 @@ class VisitReminders extends Page implements HasTable
 
     public static function pendingCount(): int
     {
-        return Pet::dueForReminder()->count() + count(Package::needingAttention()) + Appointment::awaitingConfirmation()->count();
+        return Pet::dueForReminder()->count()
+            + count(Package::needingAttention())
+            + Appointment::awaitingConfirmation()->count()
+            + Product::lowOnStock()->count();
     }
 
     protected function getHeaderActions(): array
@@ -56,7 +61,7 @@ class VisitReminders extends Page implements HasTable
 
     protected function getFooterWidgets(): array
     {
-        return [PackagesNeedingAttention::class];
+        return [LowStockProducts::class, PackagesNeedingAttention::class];
     }
 
     public function table(Table $table): Table

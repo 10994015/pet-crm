@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\AppointmentStatus;
 use App\Enums\PackageStatus;
 use App\Enums\PaymentMethod;
+use App\Models\Concerns\RecordsActivity;
 use Carbon\CarbonInterface;
 use DomainException;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -31,6 +32,8 @@ use Illuminate\Support\Facades\DB;
 ])]
 class Package extends Model
 {
+    use RecordsActivity;
+
     protected function casts(): array
     {
         return [

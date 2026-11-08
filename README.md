@@ -11,6 +11,8 @@
 - 特定日期店休與美容師請假
 - 每日自動備份，也可以在後台手動備份和下載
 - 包月方案、商品與訂單
+- 商品庫存：銷售自動扣、進貨與盤點、完整紀錄、低庫存提醒
+- 操作紀錄：誰在什麼時候改了什麼，僅業主可看
 - 營收報表、回訪提醒、Excel 匯出
 - 業主與員工兩種權限
 
@@ -20,6 +22,8 @@
 - 用手機號碼加預約代碼查詢預約
 - 會員中心：毛孩、消費紀錄、包月方案、取消預約
 - 隱私權聲明與同意紀錄
+- 防惡意預約：封鎖電話、連續未到要來電、待確認預約上限
+- SEO：分享預覽、結構化資料、sitemap、個人頁面不被搜尋引擎收錄
 
 ## 技術
 
@@ -94,6 +98,7 @@ php artisan babygo:reset-password owner      # 忘記密碼時，產生新密碼
 | `app/Services/OnlineBooking.php` | 預約規則：可預約時段、容量、防止超收 |
 | `app/Services/BibidogImporter.php` | 舊系統資料匯入 |
 | `app/Services/Backup.php` | 備份資料庫與照片 |
+| `app/Models/Concerns/RecordsActivity.php` | 哪些資料要留操作紀錄，掛在 model 上 |
 | `app/Http/Controllers/` | 公開網站與會員中心 |
 | `resources/views/front/` | 公開網站的畫面 |
 | `resources/views/errors/` | 錯誤頁，刻意不依賴資料庫 |

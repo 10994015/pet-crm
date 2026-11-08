@@ -184,6 +184,18 @@ class OnlineBooking
 
             $customer = Customer::firstWhere('phone', $phone);
 
+            if ($customer?->cannotBookOnline()) {
+                throw new DomainException('這支電話目前無法線上預約，請直接來電。');
+            }
+
+            // A prank with many made-up numbers shows up as a pile of bookings nobody has checked.
+            // Phones the shop already knows still get through.
+            $maxPending = (int) Setting::value('booking_max_pending');
+
+            if (! $customer && $maxPending > 0 && Appointment::awaitingConfirmation()->where('starts_at', '>=', now())->count() >= $maxPending) {
+                throw new DomainException('目前待確認的預約比較多，請直接來電預約。');
+            }
+
             if ($customer && $customer->appointments()->awaitingConfirmation()->where('starts_at', '>=', now())->count() >= self::MAX_OPEN_PER_PHONE) {
                 throw new DomainException('這支電話已經有好幾筆待確認的預約，請等店家聯絡或直接來電。');
             }

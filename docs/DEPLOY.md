@@ -11,7 +11,7 @@
 
 不需要 Node.js：前台與後台的樣式都已經放在 `public/`，沒有前端建置步驟。
 
-需要設定 cron 才會自動備份（步驟見下方）。目前不需要佇列 worker，因為系統還沒有背景工作。
+需要設定 cron 才會自動備份和清除一年前的操作紀錄（步驟見下方）。目前不需要佇列 worker，因為系統還沒有背景工作。
 
 ## 第一次架設
 
@@ -41,7 +41,7 @@ chown -R www-data:www-data storage bootstrap/cache /var/www/babygo/shared
 
 ### 設定排程
 
-每天的自動備份靠 Laravel 排程執行，要在主機加一筆 cron（用 `crontab -u www-data -e`）：
+每天的自動備份和舊紀錄清除靠 Laravel 排程執行，要在主機加一筆 cron（用 `crontab -u www-data -e`）：
 
 ```cron
 * * * * * cd /var/www/babygo && php artisan schedule:run >> /dev/null 2>&1
@@ -99,7 +99,9 @@ Apache 可以直接使用專案內的 `public/.htaccess`，一樣要把網站根
 4. 到「系統設定」填好**電話、地址、LINE**：隱私權聲明的聯絡方式來自這裡，沒填的話客人會找不到行使權利的管道。
 5. 實際走一次線上預約，確認後台收得到。
 6. 確認 `.env` 是 `APP_DEBUG=false`。
-7. 在「系統設定」按「立即備份」，確認備份成功並能下載。隔天再回來看，「最新備份」的時間應該是當天凌晨，表示排程有在跑。
+7. 開 `https://你的網址/robots.txt`，應該列出 `Sitemap:`；如果顯示 `Disallow: /`，代表 `APP_ENV` 不是 `production`，搜尋引擎不會收錄網站。
+8. 到 [Google Search Console](https://search.google.com/search-console) 驗證網站並提交 `https://你的網址/sitemap.xml`，再用 LINE 傳一次網址，確認預覽圖正常。
+9. 在「系統設定」按「立即備份」，確認備份成功並能下載。隔天再回來看，「最新備份」的時間應該是當天凌晨，表示排程有在跑。
 
 ## 從舊系統匯入資料
 

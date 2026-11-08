@@ -32,8 +32,31 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', '寵物美容預約') ｜ {{ config('app.name') }}</title>
-    <meta name="description" content="{{ config('app.name') }} 寵物美容線上預約：選服務、挑時段，一分鐘完成。">
+    @php
+        // Section values and yieldContent defaults are already escaped.
+        $seoTitle = $__env->yieldContent('title', '寵物美容預約').' ｜ '.e(config('app.name'));
+        $seoDescription = $__env->yieldContent('description', config('app.name').' 寵物美容線上預約：選服務、挑時段，一分鐘完成。');
+        // Personal pages stay out of search results; everything else points at one clean address.
+        $seoPrivate = request()->routeIs('front.member.*', 'front.my-booking', 'front.my-booking.find');
+    @endphp
+    <title>{!! $seoTitle !!}</title>
+    <meta name="description" content="{!! $seoDescription !!}">
+    @if ($seoPrivate)
+        <meta name="robots" content="noindex">
+    @else
+        <link rel="canonical" href="{{ url()->current() }}">
+    @endif
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:site_name" content="{{ config('app.name') }}">
+    <meta property="og:title" content="{!! $seoTitle !!}">
+    <meta property="og:description" content="{!! $seoDescription !!}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ asset('images/og-image.png') }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    @stack('head')
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">

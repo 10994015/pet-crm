@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\AppointmentStatus;
+use App\Models\Concerns\RecordsActivity;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,6 +14,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['user_id', 'starts_on', 'ends_on', 'reason'])]
 class TimeOff extends Model
 {
+    use RecordsActivity;
+
     protected function casts(): array
     {
         return [
@@ -24,6 +27,11 @@ class TimeOff extends Model
     public function groomer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function activityLabel(): string
+    {
+        return ($this->groomer?->name ?? '全店店休').' '.$this->starts_on?->format('Y/m/d').'–'.$this->ends_on?->format('Y/m/d');
     }
 
     public function scopeOn(Builder $query, CarbonInterface $day): Builder

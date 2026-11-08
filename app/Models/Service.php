@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\PetSize;
 use App\Enums\ServiceType;
+use App\Models\Concerns\RecordsActivity;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['service_category_id', 'type', 'legacy_id', 'name', 'description', 'price_small', 'price_medium', 'price_large', 'duration_minutes', 'is_active', 'sort_order', 'photo', 'is_bookable_online'])]
 class Service extends Model
 {
+    use RecordsActivity;
+
     protected $attributes = ['is_active' => true, 'type' => 'standard', 'is_bookable_online' => true];
 
     protected function casts(): array

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\AppointmentStatus;
+use App\Models\Concerns\RecordsActivity;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -13,10 +15,11 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Facades\Hash;
 
 /** A pet owner. With a password set, they can also sign in to the website's member area. */
-#[Fillable(['name', 'phone', 'backup_phone', 'email', 'line_id', 'address', 'notes', 'legacy_id'])]
+#[Fillable(['name', 'phone', 'backup_phone', 'email', 'line_id', 'address', 'notes', 'legacy_id', 'online_booking_blocked'])]
 class Customer extends Model implements AuthenticatableContract
 {
     use Authenticatable;
+    use RecordsActivity;
 
     /** How long a code from the shop works. */
     public const ACTIVATION_DAYS = 7;
@@ -30,7 +33,28 @@ class Customer extends Model implements AuthenticatableContract
             'member_since' => 'datetime',
             'activation_expires_at' => 'datetime',
             'privacy_accepted_at' => 'datetime',
+            'online_booking_blocked' => 'boolean',
         ];
+    }
+
+    /** Either the shop said so, or they've stopped showing up: both can still call. */
+    public function cannotBookOnline(): bool
+    {
+        $limit = (int) Setting::value('booking_max_no_shows');
+
+        return $this->online_booking_blocked || ($limit > 0 && $this->noShowsInARow() >= $limit);
+    }
+
+    /** No-shows in the past year since they last actually came, so coming in wipes the slate. */
+    public function noShowsInARow(): int
+    {
+        $lastVisit = $this->appointments()->where('status', AppointmentStatus::Completed)->max('starts_at');
+
+        return $this->appointments()
+            ->where('status', AppointmentStatus::NoShow)
+            ->where('starts_at', '>=', now()->subYear())
+            ->when($lastVisit, fn ($query) => $query->where('starts_at', '>', $lastVisit))
+            ->count();
     }
 
     /** Keeps when they last agreed to the privacy notice, as proof of their consent. */

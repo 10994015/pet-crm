@@ -20,7 +20,9 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
@@ -85,7 +87,19 @@ class ProductOrderResource extends Resource
                                 $set('price', $product?->price ?? 0);
                             }),
                         TextInput::make('price')->label('單價')->numeric()->integer()->minValue(0)->prefix('$')->required()->live(onBlur: true),
-                        TextInput::make('quantity')->label('數量')->numeric()->integer()->minValue(1)->default(1)->required()->live(onBlur: true),
+                        TextInput::make('quantity')
+                            ->label('數量')
+                            ->numeric()
+                            ->integer()
+                            ->minValue(1)
+                            ->default(1)
+                            ->required()
+                            ->live(onBlur: true)
+                            ->helperText(function (Get $get) {
+                                $stock = Product::find($get('product_id'))?->stock;
+
+                                return $stock === null ? null : "目前庫存 {$stock}";
+                            }),
                         Hidden::make('name'),
                     ]),
                 TextEntry::make('estimate')
@@ -125,9 +139,33 @@ class ProductOrderResource extends Resource
                     ->color('danger')
                     ->requiresConfirmation()
                     ->modalDescription('整筆金額會從今天的營收扣除，原訂單保留。')
+                    ->schema([
+                        Toggle::make('return_to_stock')
+                            ->label('商品退回庫存')
+                            ->helperText('商品已拆封、不能再賣的話請關掉。沒有追蹤庫存的商品不受影響。')
+                            ->default(true),
+                    ])
                     ->visible(fn (ProductOrder $record) => auth()->user()->can('update', $record))
-                    ->action(fn (ProductOrder $record) => $record->update(['refunded_at' => now()])),
+                    ->action(fn (ProductOrder $record, array $data) => $record->refund((bool) ($data['return_to_stock'] ?? true))),
             ]);
+    }
+
+    /** A sale is always recorded, but going below zero means the count was off. */
+    public static function warnAboutStock(ProductOrder $order): void
+    {
+        $short = $order->items()->with('product')->get()
+            ->pluck('product')
+            ->filter(fn (?Product $product) => $product?->tracksStock() && $product->stock < 0)
+            ->unique('id');
+
+        if ($short->isNotEmpty()) {
+            Notification::make()
+                ->title('庫存數字對不上')
+                ->body($short->map(fn (Product $product) => "{$product->name} 變成 {$product->stock}")->implode('、').'，訂單已成立，請盤點後修正。')
+                ->warning()
+                ->persistent()
+                ->send();
+        }
     }
 
     /** Columns shared with the customer page. */

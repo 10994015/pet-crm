@@ -42,6 +42,7 @@ class AppointmentActions
                 self::statusAction('cancel', '取消預約', Heroicon::OutlinedXCircle, AppointmentStatus::Cancelled, AppointmentStatus::active())
                     ->color('danger')
                     ->requiresConfirmation(),
+                self::cancelAndBlock(),
                 self::reopen(),
             ]),
         ];
@@ -73,6 +74,27 @@ class AppointmentActions
                 $record->update(['confirmed_at' => now()]);
 
                 Notification::make()->title('已確認預約')->success()->send();
+            });
+    }
+
+    /** One step for a booking that turns out to be fake: frees the slot and stops that phone. */
+    private static function cancelAndBlock(): Action
+    {
+        return Action::make('cancelAndBlock')
+            ->label('取消並封鎖這支電話')
+            ->icon(Heroicon::OutlinedNoSymbol)
+            ->color('danger')
+            ->visible(fn (Appointment $record) => $record->awaitsConfirmation())
+            ->requiresConfirmation()
+            ->modalHeading('取消這筆預約，並封鎖這支電話？')
+            ->modalDescription(fn (Appointment $record) => "{$record->pet->customer->name}（{$record->pet->customer->phone}）之後就不能線上預約了，可以到客戶資料解除。")
+            ->action(function (Appointment $record) {
+                abort_unless($record->awaitsConfirmation(), 409);
+
+                $record->update(['status' => AppointmentStatus::Cancelled]);
+                $record->pet->customer->update(['online_booking_blocked' => true]);
+
+                Notification::make()->title('已取消預約並封鎖這支電話')->success()->send();
             });
     }
 

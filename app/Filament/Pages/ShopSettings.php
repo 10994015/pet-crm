@@ -138,6 +138,14 @@ class ShopSettings extends Page
                             ->label('會員自行取消')
                             ->helperText('會員可在網站上取消預約，最晚到預約前幾小時；0 表示不開放')
                             ->numeric()->integer()->minValue(0)->maxValue(168)->suffix('小時前')->required(),
+                        TextInput::make('booking_max_no_shows')
+                            ->label('連續未到幾次要來電')
+                            ->helperText('達到後這位客人不能線上預約，之後來店一次就會恢復；0 表示不限制')
+                            ->numeric()->integer()->minValue(0)->maxValue(20)->suffix('次')->required(),
+                        TextInput::make('booking_max_pending')
+                            ->label('待確認預約上限')
+                            ->helperText('待確認累積到這個數量時，新客人要改用電話預約，防止大量假預約佔滿時段；0 表示不限制')
+                            ->numeric()->integer()->minValue(0)->maxValue(500)->suffix('筆')->required(),
                         CheckboxList::make('booking_closed_days')
                             ->label('每週公休日')
                             ->helperText('過年或臨時休假請到「店休與請假」設定。')

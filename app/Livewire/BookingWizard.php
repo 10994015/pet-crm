@@ -262,8 +262,11 @@ class BookingWizard extends Component
 
         $this->validate([
             'phone' => ['required', 'string', function ($attribute, $value, $fail) {
-                if (! preg_match('/^0\d{8,9}$/', preg_replace('/\D/', '', $value))) {
-                    $fail('請填寫正確的電話號碼，例如 0912-345-678');
+                // Guests need a real mobile number; a member's own number is already known to the shop.
+                $pattern = $this->member() ? '/^0\d{8,9}$/' : '/^09\d{8}$/';
+
+                if (! preg_match($pattern, preg_replace('/\D/', '', $value))) {
+                    $fail('請填寫正確的手機號碼，例如 0912-345-678');
                 }
             }],
             'name' => ['required', 'string', 'max:50'],

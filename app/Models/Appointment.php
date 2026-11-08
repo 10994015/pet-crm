@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\AppointmentStatus;
 use App\Enums\PaymentMethod;
+use App\Models\Concerns\RecordsActivity;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,8 @@ use Illuminate\Support\Facades\DB;
 ])]
 class Appointment extends Model
 {
+    use RecordsActivity;
+
     public const DEFAULT_DURATION_MINUTES = 60;
 
     public const SOURCE_SHOP = 'shop';
@@ -58,6 +61,11 @@ class Appointment extends Model
     public function pet(): BelongsTo
     {
         return $this->belongsTo(Pet::class);
+    }
+
+    public function activityLabel(): string
+    {
+        return trim(($this->pet?->name ?? '').' '.$this->starts_at?->format('Y/m/d H:i'));
     }
 
     public function groomer(): BelongsTo
