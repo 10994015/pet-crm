@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Filament\Resources\Users\UserResource;
 use App\Models\Setting;
+use App\Services\Backup;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
@@ -18,7 +19,10 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\HtmlString;
+use Illuminate\Support\Number;
+use Throwable;
 
 class ShopSettings extends Page
 {
@@ -165,7 +169,35 @@ class ShopSettings extends Page
                         ->prefix('$')
                         ->required(),
                 ]),
+                Section::make('資料備份')
+                    ->description('每天凌晨 3 點自動備份資料庫和上傳的照片。備份檔包含客戶個資，下載後請妥善保管，並存一份到主機以外的地方。')
+                    ->schema([
+                        TextEntry::make('last_backup')
+                            ->label('最新備份')
+                            ->state(fn () => self::lastBackupLabel())
+                            ->color(fn () => self::backupIsRecent() ? 'success' : 'danger'),
+                    ]),
             ]);
+    }
+
+    private static function lastBackupLabel(): string
+    {
+        $file = app(Backup::class)->latest();
+
+        if (! $file) {
+            return '還沒有備份，請按上方的「立即備份」';
+        }
+
+        $at = Carbon::createFromTimestamp($file->getMTime(), config('app.timezone'));
+
+        return $at->format('Y/m/d H:i').'（'.Number::fileSize($file->getSize(), 1).'）'.(self::backupIsRecent() ? '' : '：已超過兩天沒有新備份，請檢查排程');
+    }
+
+    private static function backupIsRecent(): bool
+    {
+        $file = app(Backup::class)->latest();
+
+        return $file && Carbon::createFromTimestamp($file->getMTime())->gt(now()->subDays(2));
     }
 
     public function save(): void
@@ -182,6 +214,29 @@ class ShopSettings extends Page
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('backupNow')
+                ->label('立即備份')
+                ->icon(Heroicon::OutlinedArchiveBoxArrowDown)
+                ->color('gray')
+                ->action(function (Backup $backup) {
+                    try {
+                        $backup->create();
+                        $backup->prune((int) config('backup.keep_days'));
+                    } catch (Throwable $exception) {
+                        report($exception);
+                        Notification::make()->title('備份失敗')->body($exception->getMessage())->danger()->send();
+
+                        return;
+                    }
+
+                    Notification::make()->title('備份完成')->success()->send();
+                }),
+            Action::make('downloadBackup')
+                ->label('下載最新備份')
+                ->icon(Heroicon::OutlinedArrowDownTray)
+                ->color('gray')
+                ->visible(fn () => app(Backup::class)->latest() !== null)
+                ->url(fn () => route('admin.backups.latest')),
             Action::make('users')
                 ->label('員工帳號')
                 ->icon(Heroicon::OutlinedIdentification)

@@ -111,6 +111,10 @@ class CustomerResource extends Resource
                             $record->activation_expires_at?->isFuture() => '已發開通碼，'.$record->activation_expires_at->format('n/j').' 前有效',
                             default => '尚未開通',
                         }),
+                    TextEntry::make('privacy_consent')->label('隱私權同意')
+                        ->state(fn (Customer $record) => $record->privacy_accepted_at
+                            ? '已於網站同意（'.$record->privacy_accepted_at->format('Y/m/d H:i').'）'
+                            : '沒有網站同意紀錄'),
                 ]),
         ]);
     }

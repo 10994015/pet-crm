@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BackupController;
 use App\Http\Controllers\FrontController;
 use App\Http\Controllers\MemberController;
 use App\Http\Middleware\MemberArea;
@@ -13,6 +14,8 @@ Route::controller(FrontController::class)->name('front.')->group(function () {
     Route::get('/my-booking', 'myBooking')->name('my-booking');
     Route::post('/my-booking', 'findBooking')->middleware('throttle:10,1')->name('my-booking.find');
 });
+
+Route::get('/admin/backups/latest', [BackupController::class, 'latest'])->name('admin.backups.latest');
 
 // The member area: owners sign in with their phone to see their pets, visits and packages.
 Route::controller(MemberController::class)->prefix('member')->name('front.member.')->group(function () {

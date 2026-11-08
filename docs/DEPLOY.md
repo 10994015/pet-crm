@@ -11,7 +11,7 @@
 
 不需要 Node.js：前台與後台的樣式都已經放在 `public/`，沒有前端建置步驟。
 
-目前也不需要 cron 或佇列 worker，因為系統還沒有排程和背景工作。
+需要設定 cron 才會自動備份（步驟見下方）。目前不需要佇列 worker，因為系統還沒有背景工作。
 
 ## 第一次架設
 
@@ -37,6 +37,14 @@ php artisan storage:link
 php artisan optimize
 
 chown -R www-data:www-data storage bootstrap/cache /var/www/babygo/shared
+```
+
+### 設定排程
+
+每天的自動備份靠 Laravel 排程執行，要在主機加一筆 cron（用 `crontab -u www-data -e`）：
+
+```cron
+* * * * * cd /var/www/babygo && php artisan schedule:run >> /dev/null 2>&1
 ```
 
 `db:seed` 如果沒有設定 `OWNER_PASSWORD`，會產生隨機密碼並顯示在畫面上，請先記下來。業主登入後請改掉密碼，再把 `.env` 裡的 `OWNER_PASSWORD` 刪除。
@@ -91,6 +99,7 @@ Apache 可以直接使用專案內的 `public/.htaccess`，一樣要把網站根
 4. 到「系統設定」填好**電話、地址、LINE**：隱私權聲明的聯絡方式來自這裡，沒填的話客人會找不到行使權利的管道。
 5. 實際走一次線上預約，確認後台收得到。
 6. 確認 `.env` 是 `APP_DEBUG=false`。
+7. 在「系統設定」按「立即備份」，確認備份成功並能下載。隔天再回來看，「最新備份」的時間應該是當天凌晨，表示排程有在跑。
 
 ## 從舊系統匯入資料
 
@@ -118,17 +127,60 @@ php artisan up
 
 維護期間客人會看到「系統維護中」的頁面。
 
-建議每次更新前先備份。
+更新前請先執行 `php artisan babygo:backup`。
 
-## 備份（尚未自動化）
+## 備份與還原
 
-**系統目前沒有備份機制，請在開放使用前自行設定。** 要備份的有：
+每天凌晨 3 點會自動備份資料庫和上傳的照片，存成 `storage/app/backups/babygo-日期-時間.zip`，保留 14 天（至少留下最新一份）。也可以手動執行：
 
-- **資料庫：** SQLite 的 `database.sqlite`，或 MySQL 的 dump
-- **上傳的照片：** `storage/app/public/`
-- **設定檔：** `.env`，尤其 `APP_KEY`
+```bash
+php artisan babygo:backup
+```
 
-備份要存到另一台主機或雲端，並實際還原過一次，確認可用。
+業主可以在後台「系統設定」按「立即備份」或「下載最新備份」，並查看最新備份的時間；超過兩天沒有新備份會顯示紅字。照片很多時，建議改用上面的指令，避免網頁逾時。
+
+用 MySQL／MariaDB 時，主機要裝有 `mysqldump`；不在 PATH 裡就設定 `BACKUP_MYSQLDUMP`。
+
+**這些備份預設和網站在同一台主機，主機損毀就會一起不見。** 請至少做一項：
+
+- 把 `BACKUP_PATH` 指到掛載的雲端或網路資料夾
+- 用 rclone 等工具定期複製到別處
+- 定期從後台下載，存到別的地方
+
+備份不包含 `.env`，請另外保管一份，尤其是 `APP_KEY`。備份檔有客戶個資且**沒有加密**，存放時要控管權限。
+
+### 還原
+
+先在測試環境練習一次，確認備份真的可用：
+
+```bash
+php artisan down
+unzip babygo-20261109-030000.zip -d /tmp/restore
+
+# SQLite：覆蓋資料庫檔案
+cp /tmp/restore/database.sqlite /var/www/babygo/shared/database.sqlite
+
+# MySQL／MariaDB：改用這行匯入
+# mysql -u babygo -p babygo < /tmp/restore/database.sql
+
+# 還原照片
+cp -r /tmp/restore/uploads/. storage/app/public/
+
+chown -R www-data:www-data storage /var/www/babygo/shared
+rm -rf /tmp/restore
+php artisan up
+```
+
+## 忘記後台密碼
+
+- **員工：** 業主在「系統設定 > 員工帳號」直接設定新密碼。
+- **業主：** 在主機上執行以下指令，畫面會顯示新密碼：
+
+```bash
+php artisan babygo:reset-password owner
+```
+
+設定好真正的寄信服務（`MAIL_MAILER` 不是 `log`）後，登入頁會出現「忘記密碼」連結，可以用 Email 自行重設。
 
 ## 持續整合
 

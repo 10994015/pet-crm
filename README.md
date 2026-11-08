@@ -8,6 +8,8 @@
 
 - 客戶與毛孩資料、美容前後照片
 - 預約管理、每日行程表、美容師時段衝突檢查
+- 特定日期店休與美容師請假
+- 每日自動備份，也可以在後台手動備份和下載
 - 包月方案、商品與訂單
 - 營收報表、回訪提醒、Excel 匯出
 - 業主與員工兩種權限
@@ -74,7 +76,14 @@ php artisan test
 
 見 [docs/DEPLOY.md](docs/DEPLOY.md)，正式環境的設定範本是 [.env.production.example](.env.production.example)。
 
-系統目前**沒有自動備份**，也不會自動寄送通知，上線前請先看過部署指南的備份段落。
+自動備份要設定 cron 才會執行，備份檔預設也和網站在同一台主機，上線前請先看過部署指南的備份段落。系統目前不會自動寄送通知。
+
+常用維護指令：
+
+```bash
+php artisan babygo:backup                    # 立刻備份
+php artisan babygo:reset-password owner      # 忘記密碼時，產生新密碼
+```
 
 ## 專案結構
 
@@ -84,6 +93,7 @@ php artisan test
 | `app/Livewire/BookingWizard.php` | 線上預約的三個步驟 |
 | `app/Services/OnlineBooking.php` | 預約規則：可預約時段、容量、防止超收 |
 | `app/Services/BibidogImporter.php` | 舊系統資料匯入 |
+| `app/Services/Backup.php` | 備份資料庫與照片 |
 | `app/Http/Controllers/` | 公開網站與會員中心 |
 | `resources/views/front/` | 公開網站的畫面 |
 | `resources/views/errors/` | 錯誤頁，刻意不依賴資料庫 |
