@@ -1,0 +1,41 @@
+<?php
+
+return [
+    'after' => ':attribute 必須晚於 :date。',
+    'after_or_equal' => ':attribute 不可早於 :date。',
+    'before' => ':attribute 必須早於 :date。',
+    'before_or_equal' => ':attribute 不可晚於 :date。',
+    'confirmed' => ':attribute 確認內容不一致。',
+    'date' => ':attribute 不是有效的日期。',
+    'email' => ':attribute 必須是有效的電子郵件。',
+    'exists' => '選擇的 :attribute 無效。',
+    'file' => ':attribute 必須是檔案。',
+    'image' => ':attribute 必須是圖片。',
+    'in' => '選擇的 :attribute 無效。',
+    'integer' => ':attribute 必須是整數。',
+    'max' => [
+        'array' => ':attribute 不可超過 :max 項。',
+        'file' => ':attribute 不可超過 :max KB。',
+        'numeric' => ':attribute 不可大於 :max。',
+        'string' => ':attribute 不可超過 :max 個字。',
+    ],
+    'min' => [
+        'array' => ':attribute 至少需要 :min 項。',
+        'file' => ':attribute 不可小於 :min KB。',
+        'numeric' => ':attribute 不可小於 :min。',
+        'string' => ':attribute 至少需要 :min 個字。',
+    ],
+    'numeric' => ':attribute 必須是數字。',
+    'password' => [
+        'letters' => ':attribute 至少要包含一個英文字母。',
+        'mixed' => ':attribute 至少要包含大小寫英文字母各一個。',
+        'numbers' => ':attribute 至少要包含一個數字。',
+        'symbols' => ':attribute 至少要包含一個符號。',
+        'uncompromised' => ':attribute 曾出現在外洩資料中，請換一組。',
+    ],
+    'regex' => ':attribute 格式不正確。',
+    'required' => '請填寫 :attribute。',
+    'same' => ':attribute 與 :other 必須相同。',
+    'string' => ':attribute 必須是文字。',
+    'unique' => ':attribute 已經存在。',
+];

@@ -1,0 +1,235 @@
+/* BabyGo look on top of Filament: dark sidebar, a warm band at the top of every
+   page with the content cards overlapping it. Plain CSS, so no build step is needed. */
+:root {
+    --bibi-nav: #1f1f1f;
+    --bibi-nav-line: #333;
+    --bibi-accent: #18ce0f;
+    --bibi-accent-ink: #0e8f08;
+    /* Band colours. Other tried options: teal #134e4a→#1d7c74, cocoa #3b2b24→#6e4f3e,
+       plum #2d2148→#5a4386. A light band needs dark ink instead of white. */
+    --bibi-band-from: #1e3b32;
+    --bibi-band-to: #2f6550;
+    --bibi-band-ink: #fff;
+    --bibi-band-ink-soft: rgba(255, 255, 255, .75);
+    --bibi-band-line: rgba(255, 255, 255, .14);
+    --bibi-band-glass: rgba(255, 255, 255, .16);
+    --bibi-band-glass-hover: rgba(255, 255, 255, .28);
+    --bibi-band-warn: #ffc56b;
+    --bibi-bg: #ebecf1;
+    --bibi-ink: #2c2c2c;
+    --bibi-muted: #888;
+    --bibi-line: #eee;
+    --bibi-orange: #f96332;
+    --bibi-green: #18ce0f;
+    --bibi-blue: #2ca8ff;
+    --bibi-red: #ff3636;
+    --bibi-radius: 6px;
+    --bibi-shadow: 0 1px 15px rgba(0, 0, 0, .05);
+    --bibi-band: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cg fill='%23ffffff' fill-opacity='.05'%3E%3Cg transform='translate(18 22) rotate(-18) scale(1.1)'%3E%3Cellipse cx='5.2' cy='10.6' rx='2.2' ry='2.9'/%3E%3Cellipse cx='9.4' cy='5.9' rx='2.3' ry='3.1'/%3E%3Cellipse cx='14.6' cy='5.9' rx='2.3' ry='3.1'/%3E%3Cellipse cx='18.8' cy='10.6' rx='2.2' ry='2.9'/%3E%3Cpath d='M12 10.8c-3.1 0-6.2 3.2-6.2 6.2 0 1.9 1.4 3 3.1 3 1.2 0 2-.6 3.1-.6s1.9.6 3.1.6c1.7 0 3.1-1.1 3.1-3 0-3-3.1-6.2-6.2-6.2z'/%3E%3C/g%3E%3Cg transform='translate(86 84) rotate(16) scale(.9)'%3E%3Cellipse cx='5.2' cy='10.6' rx='2.2' ry='2.9'/%3E%3Cellipse cx='9.4' cy='5.9' rx='2.3' ry='3.1'/%3E%3Cellipse cx='14.6' cy='5.9' rx='2.3' ry='3.1'/%3E%3Cellipse cx='18.8' cy='10.6' rx='2.2' ry='2.9'/%3E%3Cpath d='M12 10.8c-3.1 0-6.2 3.2-6.2 6.2 0 1.9 1.4 3 3.1 3 1.2 0 2-.6 3.1-.6s1.9.6 3.1.6c1.7 0 3.1-1.1 3.1-3 0-3-3.1-6.2-6.2-6.2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"), linear-gradient(100deg, var(--bibi-band-from), var(--bibi-band-to));
+}
+
+/* Page */
+.fi-body {
+    background: var(--bibi-bg);
+    color: var(--bibi-ink);
+    font-family: 'Montserrat', 'Noto Sans TC', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Sidebar */
+.fi-sidebar,
+.fi-sidebar-header,
+.fi-sidebar-header-ctn { background: var(--bibi-nav); box-shadow: none; border: 0; }
+.fi-sidebar-header { height: 4rem; border-bottom: 1px solid var(--bibi-nav-line); margin: 0 1rem; padding-inline: .25rem; }
+.fi-sidebar-nav { padding: .5rem .9rem 1rem; }
+.fi-sidebar-nav-groups, .fi-sidebar-group-items { gap: .35rem; }
+.fi-sidebar-item-btn { border-radius: 999px; padding: .7rem 1rem; }
+.fi-sidebar-item-btn:hover, .fi-sidebar-item-btn:focus-visible { background: rgba(255, 255, 255, .08); }
+.fi-sidebar-item-label { color: #e5e5e5; font-size: .78rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.fi-sidebar-item-icon { color: #bdbdbd; }
+.fi-sidebar-item.fi-active .fi-sidebar-item-btn { background: #fff; box-shadow: 0 4px 14px rgba(0, 0, 0, .25); }
+.fi-sidebar-item.fi-active .fi-sidebar-item-label,
+.fi-sidebar-item.fi-active .fi-sidebar-item-icon { color: var(--bibi-accent-ink); }
+.fi-sidebar-item-badge-ctn .fi-badge { background: var(--bibi-red); color: #fff; --tw-ring-color: transparent; }
+
+.bibi-me { display: flex; align-items: center; gap: .75rem; padding: .9rem .4rem 1rem; margin-bottom: .5rem; border-bottom: 1px solid var(--bibi-nav-line); }
+.bibi-me-avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: #3a3a3a; color: #fff; font-weight: 600; flex: none; }
+.bibi-me-text { display: flex; flex-direction: column; min-width: 0; }
+.bibi-me-name { color: #fff; font-size: .9rem; font-weight: 500; }
+.bibi-me-role { color: #9a9a9a; font-size: .72rem; }
+.bibi-sidebar-art { padding: 0 1.25rem 1.25rem; color: #555; }
+.bibi-sidebar-art svg { width: 110px; height: auto; display: block; }
+/* Decoration only: on short windows it would sit on top of the menu. */
+@media (max-height: 860px) {
+    .bibi-sidebar-art { display: none; }
+}
+
+/* Brand */
+.bibi-logo { display: inline-flex; align-items: center; gap: .6rem; color: var(--bibi-ink); text-decoration: none; }
+.fi-sidebar .bibi-logo { color: #fff; }
+.fi-topbar .bibi-logo { color: var(--bibi-band-ink); }
+.bibi-logo svg { width: 32px; height: 32px; color: var(--bibi-accent); flex: none; }
+.bibi-logo-name { display: block; font-size: 1.15rem; font-weight: 700; line-height: 1.1; letter-spacing: .04em; text-transform: uppercase; }
+.bibi-logo-sub { display: block; font-size: .66rem; opacity: .65; letter-spacing: .06em; text-transform: uppercase; }
+.fi-logo { height: auto !important; }
+
+/* Top bar sits on the band */
+.fi-topbar-ctn, .fi-topbar { background: var(--bibi-band); background-attachment: fixed; box-shadow: none; border: 0; }
+.fi-topbar .fi-icon-btn, .fi-topbar .fi-icon-btn .fi-icon, .bibi-bell, .bibi-user-name { color: var(--bibi-band-ink); }
+.fi-global-search-field .fi-input-wrp { border-radius: 999px; background: var(--bibi-band-glass); border: 0; --tw-ring-shadow: none; box-shadow: none; }
+.fi-global-search-field input { color: var(--bibi-band-ink); }
+.fi-global-search-field input::placeholder { color: var(--bibi-band-ink-soft); }
+.fi-global-search-field .fi-icon { color: var(--bibi-band-ink-soft); }
+.bibi-bell { position: relative; display: inline-flex; margin-inline-end: .75rem; }
+.bibi-bell svg { width: 22px; height: 22px; }
+.bibi-bell-count { position: absolute; top: -6px; right: -7px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: var(--bibi-red); color: #fff; font-size: .65rem; line-height: 16px; text-align: center; }
+.bibi-user-name { font-size: .85rem; font-weight: 500; margin-inline-start: .5rem; white-space: nowrap; }
+
+@media (min-width: 1024px) {
+    .fi-sidebar { top: 0; height: 100dvh; margin-top: -4rem; z-index: 40; }
+    .fi-sidebar-header { display: flex; align-items: center; }
+    .fi-topbar .fi-logo { visibility: hidden; }
+}
+
+/* The band behind the top of each page, drawn on the full-width container so it
+   always reaches both edges; content cards overlap its lower edge. */
+.fi-main-ctn { position: relative; }
+.fi-main-ctn::before { content: ''; position: absolute; inset: 0 0 auto; height: 11rem; background: var(--bibi-band); background-attachment: fixed; }
+.fi-main-ctn:has(.bibi-band)::before { height: 24rem; }
+.fi-main { position: relative; z-index: 1; padding: .75rem 1.25rem 1.5rem; }
+.fi-page { position: relative; z-index: 1; }
+.fi-page-header-main-ctn { padding-block: .75rem; row-gap: 1.25rem; }
+.fi-page-content { row-gap: 1.25rem; }
+.fi-header-heading { color: var(--bibi-band-ink); font-weight: 600; }
+.fi-header-subheading { color: var(--bibi-band-ink-soft); }
+.fi-breadcrumbs, .fi-breadcrumbs a, .fi-breadcrumbs span, .fi-breadcrumbs .fi-icon { color: var(--bibi-band-ink-soft); }
+@media (max-width: 639px) {
+    .fi-main { padding-inline: 1rem; }
+    .fi-main-ctn:has(.bibi-band)::before { height: 22rem; }
+}
+
+/* Key numbers under each page's title */
+.bibi-insights { display: flex; flex-wrap: wrap; gap: .5rem; margin: .65rem 0 0; padding: 0; list-style: none; }
+.bibi-insight { display: inline-flex; align-items: center; gap: .4rem; padding: .35rem .8rem .35rem .6rem; border-radius: 999px; background: var(--bibi-band-glass); color: var(--bibi-band-ink); font-size: .8rem; max-width: 100%; }
+.bibi-insight svg { width: 16px; height: 16px; opacity: .85; flex: none; }
+.bibi-insight-label { opacity: .75; white-space: nowrap; }
+.bibi-insight-value { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bibi-insight.is-warn svg { color: var(--bibi-band-warn); opacity: 1; }
+
+/* Cards */
+.fi-section, .fi-ta-ctn, .fi-wi-chart, .fi-wi-stats-overview-stat,
+.fi-body .schedule-card, .fi-body .report-stat {
+    border-radius: var(--bibi-radius);
+    border: 0;
+    box-shadow: var(--bibi-shadow);
+    --tw-ring-shadow: 0 0 #0000;
+}
+.fi-section-header { border-color: var(--bibi-line); }
+.fi-ta-header-cell { background: #fafafa; color: var(--bibi-muted); text-transform: uppercase; font-size: .72rem; letter-spacing: .04em; }
+.fi-btn { border-radius: 999px; }
+.fi-btn.fi-color-primary.fi-bg-color-400,
+.fi-btn.fi-color-primary.fi-bg-color-500,
+.fi-btn.fi-color-primary.fi-bg-color-600 { background: var(--bibi-accent-ink); color: #fff; }
+.fi-btn.fi-color-primary.fi-bg-color-400:hover,
+.fi-btn.fi-color-primary.fi-bg-color-500:hover,
+.fi-btn.fi-color-primary.fi-bg-color-600:hover { background: #0b7406; }
+.fi-btn.fi-color-primary .fi-icon { color: #fff; }
+.fi-input-wrp { border-radius: 8px; }
+.fi-modal-window { border-radius: var(--bibi-radius); }
+.fi-tabs { background: #fff; }
+.fi-body .schedule-bar, .fi-body .report-range { color: var(--bibi-band-ink); }
+
+/* Dashboard */
+.fi-page:has(.bibi-band) .fi-header { display: none; }
+
+.bibi-band { color: var(--bibi-band-ink); padding: .25rem 0 0; }
+.bibi-band-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: .75rem; margin-bottom: 1rem; }
+.bibi-band-title { font-size: .8rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.bibi-band-sub { font-size: .75rem; opacity: .7; }
+.bibi-band-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.bibi-band-actions a { display: inline-flex; align-items: center; gap: .35rem; padding: .4rem .9rem; border-radius: 999px; background: var(--bibi-band-glass); color: var(--bibi-band-ink); font-size: .8rem; font-weight: 500; text-decoration: none; }
+.bibi-band-actions a:hover { background: var(--bibi-band-glass-hover); }
+.bibi-band-actions svg { width: 16px; height: 16px; }
+.bibi-band-plot { position: relative; height: 13rem; margin: 0 .75rem 2.25rem 3.25rem; }
+.bibi-band-plot svg, .bibi-area svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.bibi-band-grid { position: absolute; left: 0; right: 0; border-top: 1px solid var(--bibi-band-line); }
+.bibi-band-grid span { position: absolute; right: calc(100% + .6rem); top: -.55rem; font-size: .7rem; color: var(--bibi-band-ink-soft); white-space: nowrap; }
+.bibi-band-months span { position: absolute; bottom: -1.75rem; transform: translateX(-50%); white-space: nowrap; font-size: .72rem; font-weight: 600; color: var(--bibi-band-ink-soft); }
+.bibi-dot { position: absolute; width: 9px; height: 9px; border-radius: 50%; transform: translate(-50%, -50%); background: var(--tone, #fff); border: 2px solid #fff; }
+.bibi-dot-band { width: 10px; height: 10px; background: var(--bibi-band-from); border-color: var(--bibi-band-ink); }
+
+.bibi-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); background: #fff; border-radius: var(--bibi-radius); box-shadow: var(--bibi-shadow); padding: 1.5rem 0; }
+.bibi-strip-item { display: flex; flex-direction: column; align-items: center; gap: .3rem; padding: .25rem 1rem; color: var(--bibi-ink); text-decoration: none; border-left: 1px solid var(--bibi-line); }
+.bibi-strip-item:first-child { border-left: 0; }
+.bibi-strip-item svg { width: 34px; height: 34px; margin-bottom: .35rem; }
+.bibi-strip-value { font-size: 1.75rem; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.bibi-strip-label { font-size: .78rem; color: var(--bibi-muted); letter-spacing: .06em; text-transform: uppercase; }
+a.bibi-strip-item:hover .bibi-strip-value { text-decoration: underline; }
+.bibi-tone-orange svg { color: var(--bibi-orange); }
+.bibi-tone-green svg { color: var(--bibi-green); }
+.bibi-tone-blue svg { color: var(--bibi-blue); }
+.bibi-tone-red svg { color: var(--bibi-red); }
+
+.bibi-trends { display: grid; gap: 1.25rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.bibi-trend { background: #fff; border-radius: var(--bibi-radius); box-shadow: var(--bibi-shadow); padding: 1rem 0 0; overflow: hidden; display: flex; flex-direction: column; }
+.bibi-trend-head { display: flex; justify-content: space-between; align-items: center; padding: 0 1.1rem; }
+.bibi-trend-label { font-size: .75rem; color: var(--bibi-muted); }
+.bibi-trend-change { font-size: .75rem; font-weight: 600; color: var(--bibi-accent-ink); }
+.bibi-trend-change.is-down { color: #d63a3a; }
+.bibi-trend-value { font-size: 2.2rem; font-weight: 300; padding: 0 1.1rem; font-variant-numeric: tabular-nums; }
+.bibi-area { position: relative; height: 9rem; margin: .25rem 0 0; }
+.bibi-trend-foot { padding: .75rem 1.1rem 1rem; border-top: 1px solid var(--bibi-line); }
+.bibi-trend-foot-title { font-size: .72rem; color: var(--bibi-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .35rem; }
+.bibi-trend-row { display: grid; grid-template-columns: 1fr auto 3.2rem; gap: .75rem; padding: .45rem 0; font-size: .85rem; border-bottom: 1px solid var(--bibi-line); }
+.bibi-trend-row:last-child { border-bottom: 0; }
+.bibi-trend-row span:not(:first-child) { text-align: end; font-variant-numeric: tabular-nums; }
+.bibi-trend-row span:last-child { color: var(--bibi-muted); }
+.bibi-trend-row.is-empty { display: block; color: var(--bibi-muted); }
+
+/* Service tiles on the appointment form */
+.bibi-picker { display: flex; flex-direction: column; gap: .9rem; }
+.bibi-picker-copy { align-self: flex-start; color: var(--bibi-accent-ink); font-size: .85rem; font-weight: 600; }
+.bibi-picker-title { color: var(--bibi-muted); font-size: .78rem; font-weight: 600; margin-bottom: .4rem; }
+.bibi-picker-grid { display: grid; gap: .5rem; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); }
+.bibi-tile { display: flex; flex-direction: column; gap: .15rem; padding: .7rem .8rem; min-height: 64px; text-align: start; border-radius: 10px; background: #f6f7f9; border: 2px solid transparent; color: var(--bibi-ink); transition: border-color .15s, background .15s; }
+.bibi-tile:hover { border-color: #b9e8b6; }
+.bibi-tile-on { background: #ecfbea; border-color: var(--bibi-accent); }
+.bibi-tile-name { font-weight: 600; font-size: .9rem; }
+.bibi-tile-meta { color: var(--bibi-muted); font-size: .75rem; }
+
+/* Customer overview */
+.bibi-card-title { display: inline-flex; align-items: center; gap: .5rem; font-weight: 600; color: var(--bibi-ink); }
+.bibi-card-title svg { width: 20px; height: 20px; color: var(--bibi-blue); }
+.bibi-customers { background: #fff; border-radius: var(--bibi-radius); box-shadow: var(--bibi-shadow); padding: 1.1rem 1.25rem; height: 100%; }
+.bibi-customers-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: .75rem; }
+.bibi-more { color: var(--bibi-muted); font-size: .8rem; text-decoration: none; }
+.bibi-more:hover { color: var(--bibi-accent-ink); }
+.bibi-customer { display: flex; align-items: center; gap: .75rem; padding: .7rem 0; color: inherit; text-decoration: none; border-top: 1px solid var(--bibi-line); }
+.bibi-customer:first-of-type { border-top: 0; }
+.bibi-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; flex: none; background: #fbf1e3; }
+.bibi-customer-text { min-width: 0; flex: 1; }
+.bibi-customer-name { font-weight: 600; display: block; }
+.bibi-customer-meta { color: var(--bibi-muted); font-size: .75rem; display: block; }
+.bibi-tier { flex: none; padding: .15rem .7rem; border-radius: 999px; font-size: .75rem; background: #eef6ff; color: #1a7fd0; }
+.bibi-tier-vip { background: #fff1e9; color: #d2491c; font-weight: 600; }
+.bibi-empty { color: var(--bibi-muted); font-size: .875rem; padding: 1rem 0; }
+
+@media (max-width: 1023px) {
+    .bibi-trends { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 639px) {
+    .bibi-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 1.25rem; padding: 1.25rem 0; }
+    .bibi-strip-item:nth-child(3) { border-left: 0; }
+    .bibi-band-plot { height: 10rem; margin-left: 2.75rem; }
+    .bibi-band-months span:nth-child(even) { display: none; }
+}
+
+/* ---------- Loading (public/js/busy.js) ---------- */
+.busy-bar { position: fixed; z-index: 100; top: 0; left: 0; right: 0; height: 3px; overflow: hidden; background: rgba(24, 206, 15, .18); pointer-events: none; }
+.busy-bar::before { content: ''; position: absolute; top: 0; bottom: 0; left: -40%; width: 40%; border-radius: 3px; background: linear-gradient(90deg, transparent, var(--bibi-accent), transparent); animation: busy-slide 1s ease-in-out infinite; }
+@keyframes busy-slide { to { left: 100%; } }
+html.is-busy, html.is-busy button { cursor: progress; }
+/* Filament's own buttons have their spinners; this is for the service tiles. */
+.bibi-tile[data-busy] { position: relative; }
+.bibi-tile[data-busy]::after { content: ''; position: absolute; top: 8px; right: 8px; width: 12px; height: 12px; border: 2px solid var(--bibi-accent); border-right-color: transparent; border-radius: 50%; animation: busy-spin .6s linear infinite; }
+@keyframes busy-spin { to { transform: rotate(1turn); } }
